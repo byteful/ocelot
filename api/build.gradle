@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+group 'me.byteful.lib.ocelot'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+
+        content {
+            includeGroup 'org.bukkit'
+            includeGroup 'org.spigotmc'
+        }
+    }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/central' }
+    maven {
+        name "papermc"
+        url "https://papermc.io/repo/repository/maven-public/"
+    }
+}
+sourceCompatibility = 17
+targetCompatibility = 17
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+    implementation "io.papermc:paperlib:1.0.7"
+
+    implementation project(":abstraction")
+    implementation project(":nms:v1_18_R2")
+    implementation project(":nms:v1_19_R1")
+}
+
+shadowJar {
+    archiveBaseName.set("Ocelot-API")
+    archiveClassifier.set("")
+
+    relocate "io.papermc.lib", "me.byteful.lib.ocelot.libs.paperlib"
+}

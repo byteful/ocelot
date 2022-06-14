@@ -1,0 +1,8 @@
+rootProject.name = 'ocelot'
+include 'api'
+include 'abstraction'
+include 'nms:v1_19_R1'
+findProject(':nms:v1_19_R1')?.name = 'v1_19_R1'
+include 'nms:v1_18_R2'
+findProject(':nms:v1_18_R2')?.name = 'v1_18_R2'
+
