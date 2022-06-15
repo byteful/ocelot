@@ -8,7 +8,6 @@ import org.bukkit.block.BlockState;
 import java.util.Set;
 
 public class BukkitHandler implements OcelotHandler {
-
   @Override
   public void updateBlockState(BlockState state) {
     state.update(true, false);
