@@ -10,15 +10,11 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class OcelotAPI {
   private static final OcelotHandler HANDLER;
-  //private static final Set<ChunkPosition> CHUNKS = new HashSet<>();
   private static final Map<ChunkPosition, Set<BlockPosition>> BLOCKS = new HashMap<>();
 
   static {
@@ -31,7 +27,6 @@ public final class OcelotAPI {
       Class<?> clazz = Class.forName("me.byteful.lib.ocelot.impl.NMS_" + getNMSVersion());
       localHandler = clazz.asSubclass(OcelotHandler.class).getConstructor().newInstance();
     } catch (Exception e) {
-      e.printStackTrace();
       Bukkit.getLogger().warning("[Ocelot] NMS version " + getNMSVersion() + " is not supported by Ocelot. Defaulting to Bukkit methods...");
       localHandler = new BukkitHandler();
     }
@@ -65,10 +60,52 @@ public final class OcelotAPI {
     return updateBlockState(state);
   }
 
-  public static CompletableFuture<Void> updateBlockState(final BlockState state) {
-    CompletableFuture<Void> future = new CompletableFuture<>();
+  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final Material type) {
+    final Set<BlockState> states = new HashSet<>();
+    for (Block block : blocks) {
+      final BlockState state = block.getState();
+      state.setType(type);
+      states.add(state);
+    }
 
-    PaperLib.getChunkAtAsync(state.getLocation()).thenAccept(chunk -> {
+    return updateBlockStates(states);
+  }
+
+  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final MaterialData data) {
+    final Set<BlockState> states = new HashSet<>();
+    for (Block block : blocks) {
+      final BlockState state = block.getState();
+      state.setData(data);
+      states.add(state);
+    }
+
+    return updateBlockStates(states);
+  }
+
+  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final BlockData data) {
+    final Set<BlockState> states = new HashSet<>();
+    for (Block block : blocks) {
+      final BlockState state = block.getState();
+      state.setBlockData(data);
+      states.add(state);
+    }
+
+    return updateBlockStates(states);
+  }
+
+  public static CompletableFuture<Void> updateBlockStates(final Collection<BlockState> states) {
+    final BlockState[] statesArray = states.toArray(new BlockState[0]);
+    final CompletableFuture[] array = new CompletableFuture[states.size()];
+
+    for (int i = 0; i < states.size(); i++) {
+      array[i] = updateBlockState(statesArray[i]);
+    }
+
+    return CompletableFuture.allOf(array);
+  }
+
+  public static CompletableFuture<Void> updateBlockState(final BlockState state) {
+    return PaperLib.getChunkAtAsync(state.getLocation()).thenAccept(chunk -> {
       Runnable run = () -> {
         HANDLER.updateBlockState(state);
         final ChunkPosition c = new ChunkPosition(chunk);
@@ -76,17 +113,15 @@ public final class OcelotAPI {
           BLOCKS.put(c, new HashSet<>());
         }
         BLOCKS.get(c).add(new BlockPosition(state.getBlock()));
-        future.complete(null);
       };
 
       if (Bukkit.isPrimaryThread()) {
         run.run();
       } else {
         Bukkit.getScheduler().runTask(JavaPlugin.getProvidingPlugin(OcelotAPI.class), run);
+        System.out.println("[Ocelot] updateBlockState was ran async. Fixing automatically...");
       }
     });
-
-    return future;
   }
 
   public static void refreshChunks() {

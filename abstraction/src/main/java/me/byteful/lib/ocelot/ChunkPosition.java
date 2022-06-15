@@ -29,7 +29,7 @@ public final class ChunkPosition {
     if (this == o) return true;
     if (!(o instanceof ChunkPosition)) return false;
     ChunkPosition that = (ChunkPosition) o;
-    return x == that.x && z == that.z && world.equals(that.world);
+    return x == that.x && z == that.z && world.getName().equals(that.world.getName());
   }
 
   public int distance(ChunkPosition other) {
@@ -38,7 +38,7 @@ public final class ChunkPosition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(world, x, z);
+    return Objects.hash(world.getName(), x, z);
   }
 
   @Override
