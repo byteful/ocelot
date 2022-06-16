@@ -159,12 +159,19 @@ public final class OcelotAPI {
   }
 
   public static CompletableFuture<Void> updateBlockStates(final Collection<BlockState> states) {
+    final Set<CompletableFuture<Void>> futures = new HashSet<>();
+
+    if (states.size() <= 20) {
+      states.forEach(state -> futures.add(updateBlockState(state)));
+
+      return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
+    }
+
     final CompletableFuture<Void> future = new CompletableFuture<>();
     final Bucket<BlockState> bucket = BucketFactory.newHashSetBucket(20, PartitioningStrategies.lowestSize());
     bucket.addAll(states.stream().filter(state -> state != null && isInBounds(state.getBlock())).collect(Collectors.toSet()));
 
     new BukkitRunnable() {
-      final Set<CompletableFuture<Void>> futures = new HashSet<>();
       long blockCounter = 0L;
 
       @Override
@@ -223,9 +230,17 @@ public final class OcelotAPI {
   }
 
   public static CompletableFuture<Void> refreshChunks() {
+    final int total = BLOCKS.size();
+
+    if (total <= 20) {
+      return CompletableFuture.runAsync(() -> {
+        BLOCKS.forEach(HANDLER::refreshChunk);
+        BLOCKS.clear();
+      });
+    }
+
     final Bucket<Map.Entry<ChunkPosition, Set<BlockPosition>>> bucket = BucketFactory.newHashSetBucket(20, PartitioningStrategies.lowestSize());
     bucket.addAll(BLOCKS.entrySet());
-    final int total = BLOCKS.size();
     BLOCKS.clear();
 
     final CompletableFuture<Void> future = new CompletableFuture<>();
