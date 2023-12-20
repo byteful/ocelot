@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+group 'me.byteful.lib.ocelot'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven { url = "https://repo.codemc.io/repository/nms/" }
+    maven {
+        url "https://libraries.minecraft.net"
+    }
+}
+
+dependencies {
+    implementation project(":abstraction")
+    compileOnly 'org.spigotmc:spigot:1.19.2-R0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 17
+targetCompatibility = 17

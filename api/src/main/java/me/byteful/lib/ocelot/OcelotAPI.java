@@ -116,7 +116,7 @@ public final class OcelotAPI {
     return updateBlockState(state);
   }
 
-  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final Material type) {
+  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final Material type, boolean fast) {
     final Set<BlockState> states = new HashSet<>();
     for (Block block : blocks) {
       if (!isInBounds(block)) {
@@ -127,10 +127,10 @@ public final class OcelotAPI {
       states.add(state);
     }
 
-    return updateBlockStates(states);
+    return updateBlockStates(states, fast);
   }
 
-  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final MaterialData data) {
+  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final MaterialData data, boolean fast) {
     final Set<BlockState> states = new HashSet<>();
     for (Block block : blocks) {
       if (!isInBounds(block)) {
@@ -141,10 +141,10 @@ public final class OcelotAPI {
       states.add(state);
     }
 
-    return updateBlockStates(states);
+    return updateBlockStates(states, fast);
   }
 
-  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final BlockData data) {
+  public static CompletableFuture<Void> updateBlocks(final Collection<Block> blocks, final BlockData data, boolean fast) {
     final Set<BlockState> states = new HashSet<>();
     for (Block block : blocks) {
       if (!isInBounds(block)) {
@@ -155,10 +155,10 @@ public final class OcelotAPI {
       states.add(state);
     }
 
-    return updateBlockStates(states);
+    return updateBlockStates(states, fast);
   }
 
-  public static CompletableFuture<Void> updateBlockStates(final Collection<BlockState> states) {
+  public static CompletableFuture<Void> updateBlockStates(final Collection<BlockState> states, boolean fast) {
     final Set<CompletableFuture<Void>> futures = new HashSet<>();
 
     if (states.size() <= 20) {
@@ -171,6 +171,12 @@ public final class OcelotAPI {
     final Bucket<BlockState> bucket = BucketFactory.newHashSetBucket(20, PartitioningStrategies.lowestSize());
     bucket.addAll(states.stream().filter(state -> state != null && isInBounds(state.getBlock())).collect(Collectors.toSet()));
 
+    if (fast) {
+      bucket.forEach(blockState -> {
+        //        HANDLER.updateBlockState(state);
+        HANDLER.updateBlockState(blockState);
+      });
+    }
     new BukkitRunnable() {
       long blockCounter = 0L;
 
