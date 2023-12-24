@@ -40,7 +40,6 @@ public class NMS_v1_19_R2 implements OcelotHandler {
       final int z = blockState.getZ();
       final net.minecraft.core.BlockPosition bp = new net.minecraft.core.BlockPosition(
           x, y, z);
-      final IBlockData ibd = ((CraftBlockData) blockState.getBlockData()).getState();
       chunk.i.remove(bp);
       final ChunkSection cs = chunk.b((chunk.e(blockState.getY())));
       cs.a(blockState.getX() & 15, blockState.getY() & 15, blockState.getZ() & 15);

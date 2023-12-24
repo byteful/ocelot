@@ -28,7 +28,6 @@ public class NMS_v1_19_R1 implements OcelotHandler {
     chunk.i.remove(bp);
     final ChunkSection cs = chunk.b(chunk.e(state.getY()));
     cs.a(state.getX() & 15, state.getY() & 15, state.getZ() & 15, ibd);
-    //chunk.q.k().a(bp);
   }
 
   @Override
