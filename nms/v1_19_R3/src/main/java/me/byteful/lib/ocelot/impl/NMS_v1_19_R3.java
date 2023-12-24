@@ -9,10 +9,13 @@ import me.byteful.lib.ocelot.OcelotHandler;
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.chunk.Chunk;
 import net.minecraft.world.level.chunk.ChunkSection;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_19_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBlockData;
+
 
 public class NMS_v1_19_R3 implements OcelotHandler {
 
@@ -20,20 +23,20 @@ public class NMS_v1_19_R3 implements OcelotHandler {
 
   @Override
   public void updateBlockState(BlockState state) {
-    final Chunk chunk = ((CraftChunk) state.getChunk()).getHandle();
-    final net.minecraft.core.BlockPosition blockPosition = new net.minecraft.core.BlockPosition(
-        state.getX(), state.getY(), state.getZ());
-    final IBlockData iBlockData = ((CraftBlockData) state.getBlockData()).getState();
-    chunk.i.remove(blockPosition);
-    final ChunkSection chunkSection = chunk.b(chunk.e(state.getY()));
-    chunkSection.a(state.getX() & 15, state.getY() & 15, state.getZ() & 15, iBlockData);
+//    final Chunk chunk = ((CraftChunk) state.getChunk()).getHandle();
+//    final net.minecraft.core.BlockPosition blockPosition = new net.minecraft.core.BlockPosition(
+//        state.getX(), state.getY(), state.getZ());
+//    final IBlockData iBlockData = ((CraftBlockData) state.getBlockData()).getState();
+//    chunk.i.remove(blockPosition);
+//    final ChunkSection chunkSection = chunk.b(chunk.e(state.getY()));
+//    chunkSection.a(state.getX() & 15, state.getY() & 15, state.getZ() & 15, iBlockData);
   }
 
   @Override
   public void updateBlockState(List<BlockState> states) {
     if (states != null && !states.isEmpty()) {
       BlockState blockState = states.get(random.nextInt(states.size()));
-      final Chunk chunk = ((CraftChunk) blockState.getChunk()).getHandle();
+      final Chunk chunk = (Chunk) blockState.getChunk();
       final int x = blockState.getX();
       final int y = blockState.getY();
       final int z = blockState.getZ();
@@ -49,13 +52,15 @@ public class NMS_v1_19_R3 implements OcelotHandler {
   @Override
   public void refreshChunk(ChunkPosition chunk, Set<BlockPosition> blocks) {
     final CraftWorld world = (CraftWorld) chunk.world;
+    final LightEngine lightEngine = world.getHandle().l_();
 
     for (BlockPosition blockPosition : blocks) {
       final CraftChunk chunkAt = (CraftChunk) world.getChunkAt(blockPosition.getX(), blockPosition.getZ());
 
       final net.minecraft.core.BlockPosition bp = new net.minecraft.core.BlockPosition(
           blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
-      chunkAt.getHandle().q.k().a(bp);
+      chunkAt.getHandle(ChunkStatus.c).a();
+      lightEngine.a(bp);
     }
   }
 }

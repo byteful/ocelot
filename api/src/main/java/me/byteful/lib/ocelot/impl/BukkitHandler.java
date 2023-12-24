@@ -1,5 +1,6 @@
 package me.byteful.lib.ocelot.impl;
 
+import java.util.List;
 import me.byteful.lib.ocelot.BlockPosition;
 import me.byteful.lib.ocelot.ChunkPosition;
 import me.byteful.lib.ocelot.OcelotHandler;
@@ -11,6 +12,11 @@ public class BukkitHandler implements OcelotHandler {
   @Override
   public void updateBlockState(BlockState state) {
     state.update(true, false);
+  }
+
+  @Override
+  public void updateBlockState(List<BlockState> states) {
+
   }
 
   @Override
