@@ -1,5 +1,7 @@
 package me.byteful.lib.ocelot.impl;
 
+import java.util.List;
+import java.util.Random;
 import me.byteful.lib.ocelot.BlockPosition;
 import me.byteful.lib.ocelot.ChunkPosition;
 import me.byteful.lib.ocelot.OcelotHandler;
@@ -15,6 +17,8 @@ import java.util.Set;
 
 public class NMS_v1_16_R3 implements OcelotHandler {
 
+  private static final Random random = new Random();
+
   @Override
   public void updateBlockState(BlockState state) {
     final Chunk chunk = ((CraftChunk) state.getChunk()).getHandle();
@@ -28,6 +32,27 @@ public class NMS_v1_16_R3 implements OcelotHandler {
       chunk.getSections()[y >> 4] = cs;
     }
     cs.setType(state.getX() & 15, y & 15, state.getZ() & 15, ibd);
+  }
+
+  @Override
+  public void updateBlockState(List<BlockState> states) {
+    if (states != null && !states.isEmpty()) {
+      BlockState blockState = states.get(random.nextInt(states.size()));
+      final Chunk chunk = ((CraftChunk) blockState.getChunk()).getHandle();
+      final int x = blockState.getX();
+      final int y = blockState.getY();
+      final int z = blockState.getZ();
+      final net.minecraft.server.v1_16_R3.BlockPosition bp = new net.minecraft.server.v1_16_R3.BlockPosition(
+          x, y, z);
+      final IBlockData ibd = ((CraftBlockData) blockState.getBlockData()).getState();
+      chunk.tileEntities.remove(bp);
+      ChunkSection cs = chunk.getSections()[y >> 4];
+      if (cs == chunk.a()) {
+        cs = new ChunkSection(y >> 4 << 4);
+        chunk.getSections()[y >> 4] = cs;
+      }
+      cs.setType(blockState.getX() & 15, blockState.getY() % 15, blockState.getZ() % 15, ibd);
+    }
   }
 
   @Override

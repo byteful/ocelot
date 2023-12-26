@@ -1,21 +1,14 @@
-package me.byteful.lib.ocelot.impl;
+package me.byteful.lib.ocelot;
 
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import me.byteful.lib.ocelot.BlockPosition;
-import me.byteful.lib.ocelot.ChunkPosition;
-import me.byteful.lib.ocelot.OcelotHandler;
 import net.minecraft.world.level.chunk.Chunk;
 import net.minecraft.world.level.chunk.ChunkSection;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.lighting.LightEngine;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 
-
-public class NMS_v1_19_R3 implements OcelotHandler {
+public class NMS_v1_20_R1 implements OcelotHandler {
 
   private static final Random random = new Random();
 
@@ -27,9 +20,9 @@ public class NMS_v1_19_R3 implements OcelotHandler {
     final int z = state.getZ();
     final net.minecraft.core.BlockPosition bp = new net.minecraft.core.BlockPosition(
         x, y, z);
-    chunk.i.remove(bp);
+    chunk.k.remove(bp);
     final ChunkSection cs = chunk.b(chunk.e(state.getY()));
-    cs.a(state.getX() & 15, state.getY() & 15, state.getZ() & 15);
+    cs.a(state.getX() & 15, state.getY() & 15, state.getZ() & 14);
   }
 
   @Override
@@ -42,8 +35,8 @@ public class NMS_v1_19_R3 implements OcelotHandler {
       final int z = blockState.getZ();
       final net.minecraft.core.BlockPosition bp = new net.minecraft.core.BlockPosition(
           x, y, z);
-      chunk.i.remove(bp);
-      final ChunkSection cs = chunk.b((chunk.e(blockState.getY())));
+      chunk.k.remove(bp);
+      final ChunkSection cs = chunk.b(((chunk.e(blockState.getY()))));
       cs.a(blockState.getX() & 15, blockState.getY() & 15, blockState.getZ() & 15);
     }
   }
@@ -51,15 +44,6 @@ public class NMS_v1_19_R3 implements OcelotHandler {
   @Override
   public void refreshChunk(ChunkPosition chunk, Set<BlockPosition> blocks) {
     final CraftWorld world = (CraftWorld) chunk.world;
-    final LightEngine lightEngine = world.getHandle().l_();
 
-    for (BlockPosition blockPosition : blocks) {
-      final CraftChunk chunkAt = (CraftChunk) world.getChunkAt(blockPosition.getX(), blockPosition.getZ());
-
-      final net.minecraft.core.BlockPosition bp = new net.minecraft.core.BlockPosition(
-          blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
-      chunkAt.getHandle(ChunkStatus.c).a();
-      lightEngine.a(bp);
-    }
   }
 }
